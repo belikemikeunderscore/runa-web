@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" type="text/css" href="https://parcel.pyke.io/v2/cdn/3rdparty/inter-font/3.18/inter.css">
+    	<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+        <title>Runa Bot</title>
+		<script defer src="https://unpkg.com/smoothscroll-polyfill@0.4.4/dist/smoothscroll.min.js"></script>
+    </head>
+	<style>
+
+	body, html {
+			font-family: "Inter var", Inter, Helvetica, -apple-system-font, sans-serif;
+			color: black;
+			margin: 0;
+			height: 100%;
+			scroll-behavior: smooth;
+			overflow-x: hidden;
+			-webkit-animation: fadein 0.5s; 
+       -moz-animation: fadein 0.5s; 
+        -ms-animation: fadein 0.5s; 
+         -o-animation: fadein 0.5s; 
+            animation: fadein 0.5s;
+	}
+
+	nav img {
+			border-radius: 50%;
+	}
+
+	#mainimage {
+			display: block;
+			border-radius: 50%;
+			margin-top: auto;
+			margin-bottom: auto;
+			filter: drop-shadow(0 0 1px #888);
+	}
+
+	#mainimage-container {
+			position: relative;
+			margin: auto;
+	}
+
+	#hero-container {
+			flex-direction: row;
+			display: flex;
+	}
+
+	#mainimage-border-effect {
+			width: 256px;
+			height: 256px;
+			border-radius: 50%;
+			border: 5px dotted rgb(255, 147, 114);
+			z-index: 0;
+			position: absolute;
+			top: 10px;
+			left: 10px;
+			animation: spin 20s linear infinite;
+	}
+
+	@keyframes spin {
+			from {
+				transform: rotate(0deg);
+			}
+			to {
+				transform: rotate(360deg);
+		}
+	}
+
+	.main {
+			width: 100%;
+			text-align: center;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100%;
+	}
+
+	.main:nth-of-type(1) {
+			height: 100% !important;
+			background-image: linear-gradient(45deg, tomato 28%, rgb(252, 206, 0) 100%);
+	}
+
+	.main:nth-of-type(2) {
+			height: unset;
+			margin-top: 10vh;
+	}
+	
+
+	@media (max-width: 1024px) {
+			#hero-container {
+				flex-direction: column;
+	}
+
+	#hero-text {
+				padding-left: 10px;
+		}
+	}
+
+	.main > div * {
+			padding: 10px;
+	}
+
+	.main a {
+			display: block;
+	}
+
+	#hero-text {
+			padding-left: 50px;
+	}
+
+	#hero-text *:not(button) {
+			padding: 0 !important;
+	}
+
+	#features {
+			font-size: 50px;
+
+	}
+	.down {
+			position: absolute;
+			bottom: 10px;
+			left: 50%;
+			margin-left: -25px;
+			animation: bounce 2s ease-in-out infinite alternate-reverse;
+	}
+
+	@keyframes bounce {
+			from {
+				bottom: 10px;
+			}
+			to {
+				bottom: 25px;
+		}
+	}
+
+	@media (orientation: portrait) {
+			.feature {
+				width: 75vw;
+		}
+	}
+		@media (orientation: landscape) {
+			.feature {
+				height: 75vh;
+		}
+	}
+
+	@keyframes fadein {
+    from {
+        opacity:0;
+    }
+    to {
+        opacity:1;
+	    }
+	}
+	@-moz-keyframes fadein {
+	    from {
+	        opacity:0;
+	    }
+	    to {
+	        opacity:1;
+	    }
+	}
+
+	@-webkit-keyframes fadein {
+	    from {
+	        opacity:0;
+	    }
+	    to {
+	        opacity:1;
+	    }
+	}
+
+	@-o-keyframes fadein { 
+	    from {
+	        opacity:0;
+	    }
+	    to {
+	        opacity: 1;
+	    }
+	}
+
+	#discord {
+		text-align: center;
+	}
+</style>
+<body>
+	<div class="main">
+		<div>
+			<div id="hero-container">
+				<div id="mainimage-container">
+					<img src="https://cdn.discordapp.com/avatars/845455726759247915/d46cc25f15cce9d4f776eddd14f1fc7a.webp?size=256" id="mainimage" width="256" height="256">
+					<div id="mainimage-border-effect"></div>
+				</div>
+				<div id="hero-text" style="margin:auto">
+					<h1>Runa is a cool music bot.</h1>
+					<p>that's about it.</p>
+					<a href="https://top.gg/bot/845455726759247915"><button type="button" class="btn btn-primary btn-lg" style="background-color: tomato; border-color: tomato; filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.5))">Add Runa to your server</button></a>
+				</div>
+			</div>
+		</div>
+		<div class="down">
+			<a href='#features'>
+				<svg viewBox="0 0 1030 638" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" style="width:50px;">
+					<path d="M1017 68L541 626q-116 12-26 12t-26-12L13 68Q-3 49 6 24.5T39 0h952q24 0 33 24.5t-7 43.5z"/>
+				</svg>
+			</a>
+		</div>
+	</div>
+	<div class="main">
+		<div style="z-index:3;background-color:white;">
+			<h1 id='features'>Features</h1>
+			<div class="container">
+				<div class="row row-cols-sm-1 row-cols-lg-2">
+					<div class="col">
+						<div class="d-flex align-items-center h-100">
+							<div>
+							<h1>Extensive list of commands!</h1>
+							<p>We might add more, who knows!</p>
+							</div>
+						</div>
+					</div>
+					<div class="col">
+						<img class="feature" src="pic3.png">
+					</div>
+					<div class="col" id="leftfeat-f">
+						<img class="feature" src="pic2.png">
+					</div>
+					<div class="col" id="leftfeat-t">
+						<div class="d-flex align-items-center h-100">
+						 <div>
+							<h1>Youtube Search</h1>
+							<p>Runa searches and plays a youtube video, including your favourite tracks!</p>
+						 </div>
+						</div>
+					</div>
+					<div class="col" id="leftfeat-n">
+						<div class="d-flex align-items-center h-100">
+							<div>
+							<h1>Song queue and time tracking</h1>
+							<p>Check what music is currently playing and who requested it</p>
+						    </div>
+						</div>
+					</div>
+					<div class="col">
+						<img class="feature" src="pic1.png">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		window.addEventListener('resize',function(){var e=document.getElementById('leftfeat-t');if(window.innerWidth*window.devicePixelRatio>=992)e.parentElement.insertBefore(e,document.getElementById('leftfeat-f'));else e.parentElement.insertBefore(e,document.getElementById('leftfeat-n'))});
+	</script>
+</body> 
