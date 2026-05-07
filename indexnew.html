@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Runa Bot — All In on Music ♥</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg:      '#0a0408',
+            surface: '#140810',
+            card:    '#1e0d18',
+            rim:     '#2a1022',
+            cr:  { DEFAULT:'#c8001e', light:'#e8003d', dim:'#7a0011' },
+            gold:{ DEFAULT:'#d4a929', light:'#f0ce5a', dim:'#8a6d14' },
+            blush:   '#f7d0df',
+            ivory:   '#fdf0f4',
+          },
+          fontFamily: {
+            display: ['"Playfair Display"','Georgia','serif'],
+            body:    ['"DM Sans"','system-ui','sans-serif'],
+          },
+          animation: {
+            'spin-slow':    'spinSlow 22s linear infinite',
+            'spin-rev':     'spinRev 18s linear infinite',
+            'float':        'float 5s ease-in-out infinite',
+            'glimmer':      'glimmer 2.8s ease-in-out infinite',
+            'marquee':      'marquee 28s linear infinite',
+            'fadeup':       'fadeup 0.7s ease both',
+          },
+          keyframes: {
+            spinSlow: { from:{transform:'rotate(0deg)'},  to:{transform:'rotate(360deg)'} },
+            spinRev:  { from:{transform:'rotate(0deg)'},  to:{transform:'rotate(-360deg)'} },
+            float:    { '0%,100%':{transform:'translateY(0)'}, '50%':{transform:'translateY(-18px)'} },
+            glimmer:  { '0%,100%':{opacity:'.6'}, '50%':{opacity:'1'} },
+            marquee:  { '0%':{transform:'translateX(0)'}, '100%':{transform:'translateX(-50%)'} },
+            fadeup:   { from:{opacity:'0',transform:'translateY(28px)'}, to:{opacity:'1',transform:'translateY(0)'} },
+          },
+          backgroundImage: {
+            'noise': "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E\")",
+          },
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: #0a0408;
+      color: #fdf0f4;
+      font-family: "DM Sans", system-ui, sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── GRAIN OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: .35;
+    }
+
+    /* ── RADIAL GLOW HERO BG ── */
+    .hero-glow {
+      background:
+        radial-gradient(ellipse 70% 60% at 35% 50%, rgba(200,0,30,.22) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 50% at 75% 30%, rgba(212,169,41,.10) 0%, transparent 60%),
+        #0a0408;
+    }
+
+    /* ── ORNATE BORDER ── */
+    .ornate-frame {
+      position: relative;
+      display: inline-block;
+    }
+    .ornate-frame::before, .ornate-frame::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+    }
+    .ornate-frame::before {
+      inset: -10px;
+      border: 1.5px dashed rgba(212,169,41,.5);
+      animation: spinSlow 22s linear infinite;
+    }
+    .ornate-frame::after {
+      inset: -18px;
+      border: 1px dashed rgba(200,0,30,.35);
+      animation: spinRev 18s linear infinite;
+    }
+    @keyframes spinSlow { to{ transform: rotate(360deg); } }
+    @keyframes spinRev  { to{ transform: rotate(-360deg); } }
+
+    /* ── CARD SUIT DIVIDER ── */
+    .suit-divider {
+      display: flex; align-items: center; gap: 1rem;
+      color: rgba(212,169,41,.45);
+      font-size: 1.1rem;
+      letter-spacing: 0.4em;
+      user-select: none;
+    }
+    .suit-divider::before, .suit-divider::after {
+      content: ''; flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(212,169,41,.35), transparent);
+    }
+
+    /* ── FEATURE CARD ── */
+    .feat-card {
+      background: linear-gradient(135deg, #1e0d18 0%, #140810 100%);
+      border: 1px solid rgba(200,0,30,.25);
+      position: relative;
+      overflow: hidden;
+      transition: border-color .3s, transform .3s;
+    }
+    .feat-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(200,0,30,.1), transparent 70%);
+      pointer-events: none;
+    }
+    .feat-card:hover {
+      border-color: rgba(200,0,30,.6);
+      transform: translateY(-4px);
+    }
+    .feat-card .corner {
+      position: absolute;
+      font-size: .65rem;
+      line-height: 1;
+      color: rgba(212,169,41,.5);
+      font-family: "Playfair Display", serif;
+    }
+    .feat-card .corner.tl { top: 8px; left: 10px; }
+    .feat-card .corner.br { bottom: 8px; right: 10px; transform: rotate(180deg); }
+
+    /* ── COMMAND CHIP ── */
+    .cmd-chip {
+      background: #1e0d18;
+      border: 1px solid rgba(200,0,30,.3);
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-family: "DM Mono", monospace;
+      font-size: .8rem;
+      color: #f7d0df;
+      transition: background .25s, border-color .25s;
+    }
+    .cmd-chip:hover {
+      background: rgba(200,0,30,.15);
+      border-color: rgba(200,0,30,.7);
+    }
+
+    /* ── MARQUEE TICKER ── */
+    .ticker-track {
+      display: flex; width: max-content;
+      animation: marquee 28s linear infinite;
+    }
+    @keyframes marquee { to { transform: translateX(-50%); } }
+
+    /* ── STAT CARD ── */
+    .stat-card {
+      border: 1px solid rgba(212,169,41,.2);
+      background: linear-gradient(135deg, rgba(212,169,41,.06), rgba(200,0,30,.04));
+      border-radius: 12px;
+      padding: 1.25rem 1.75rem;
+      text-align: center;
+      transition: border-color .3s;
+    }
+    .stat-card:hover { border-color: rgba(212,169,41,.5); }
+
+    /* ── SCROLL CHEVRON ── */
+    @keyframes bounce-down {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(10px); }
+    }
+    .chevron-bounce { animation: bounce-down 1.8s ease-in-out infinite; }
+
+    /* ── NAV ── */
+    nav { background: rgba(10,4,8,.85); backdrop-filter: blur(14px); }
+
+    /* ── GLOW TEXT ── */
+    .glow-cr { text-shadow: 0 0 30px rgba(200,0,30,.55), 0 0 60px rgba(200,0,30,.25); }
+    .glow-gold { text-shadow: 0 0 20px rgba(212,169,41,.6); }
+
+    /* ── CTA BUTTON ── */
+    .btn-runa {
+      background: linear-gradient(135deg, #c8001e, #e8003d);
+      border: 1px solid rgba(255,100,100,.3);
+      color: #fff;
+      font-weight: 500;
+      letter-spacing: .04em;
+      border-radius: 9999px;
+      padding: .85rem 2.5rem;
+      font-size: 1rem;
+      transition: filter .25s, transform .2s, box-shadow .25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-runa::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.12), transparent 60%);
+      border-radius: inherit;
+    }
+    .btn-runa:hover {
+      filter: brightness(1.15);
+      transform: scale(1.04);
+      box-shadow: 0 0 32px rgba(200,0,30,.45);
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(212,169,41,.45);
+      color: #d4a929;
+      border-radius: 9999px;
+      padding: .85rem 2rem;
+      font-size: .95rem;
+      letter-spacing: .04em;
+      transition: background .25s, border-color .25s;
+    }
+    .btn-outline:hover {
+      background: rgba(212,169,41,.1);
+      border-color: rgba(212,169,41,.8);
+    }
+
+    /* ── FADE IN STAGGER ── */
+    .anim-fadeup { animation: fadeup 0.7s ease both; }
+    .delay-1 { animation-delay: .15s; }
+    .delay-2 { animation-delay: .30s; }
+    .delay-3 { animation-delay: .45s; }
+    .delay-4 { animation-delay: .60s; }
+
+    @keyframes float  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-18px)} }
+    @keyframes fadeup { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ── DECORATIVE CARD SUIT SCATTER ── */
+    .scatter-suit {
+      position: absolute; pointer-events: none; user-select: none;
+      font-size: 1rem; opacity: .07;
+    }
+
+    /* ── FOOTER ORNAMENT ── */
+    .footer-line {
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(200,0,30,.4), rgba(212,169,41,.4), transparent);
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0a0408; }
+    ::-webkit-scrollbar-thumb { background: #7a0011; border-radius: 99px; }
+  </style>
+</head>
+
+<body class="relative">
+
+  <!-- ══════════════ NAV ══════════════ -->
+  <nav class="fixed top-0 left-0 right-0 z-50 border-b border-white/5">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="profile.png" alt="Runa" class="w-8 h-8 rounded-full object-cover ring-1 ring-cr/40">
+        <span class="font-display font-bold text-ivory text-lg tracking-wide">Runa</span>
+        <span class="text-gold text-xs px-2 py-0.5 border border-gold/30 rounded-full">BOT</span>
+      </div>
+      <div class="flex items-center gap-6 text-sm text-blush/60">
+        <a href="#features" class="hover:text-blush transition-colors">Features</a>
+        <a href="#commands" class="hover:text-blush transition-colors">Commands</a>
+        <a href="https://top.gg/bot/845455726759247915" target="_blank" class="btn-runa text-sm !py-2 !px-5">Add to Server</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ══════════════ HERO ══════════════ -->
+  <section class="hero-glow relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+
+    <!-- scattered suits -->
+    <span class="scatter-suit" style="top:8%;left:7%;font-size:2.5rem;">♠</span>
+    <span class="scatter-suit" style="top:15%;right:12%;font-size:1.8rem;">♥</span>
+    <span class="scatter-suit" style="bottom:20%;left:5%;font-size:3rem;">♦</span>
+    <span class="scatter-suit" style="bottom:12%;right:8%;font-size:2rem;">♣</span>
+    <span class="scatter-suit" style="top:42%;right:4%;font-size:1.4rem;">♠</span>
+    <span class="scatter-suit" style="top:62%;left:3%;font-size:1.6rem;">♥</span>
+
+    <div class="relative z-10 max-w-6xl mx-auto px-6 flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
+
+      <!-- avatar -->
+      <div class="flex-shrink-0 anim-fadeup" style="--tw-translate-y:0">
+        <div class="ornate-frame">
+          <div class="relative w-52 h-52 rounded-full overflow-hidden ring-2 ring-cr/40"
+               style="box-shadow: 0 0 50px rgba(200,0,30,.3), 0 0 100px rgba(200,0,30,.12);">
+            <img src="profile.png" alt="Runa Bot avatar" class="w-full h-full object-cover" style="animation: float 5s ease-in-out infinite;">
+            <!-- vignette overlay -->
+            <div class="absolute inset-0 rounded-full" style="background:radial-gradient(circle at 40% 30%, rgba(255,100,100,.08), transparent 60%)"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- text -->
+      <div class="text-center lg:text-left max-w-xl">
+        <p class="anim-fadeup delay-1 text-gold/70 text-sm uppercase tracking-[.3em] mb-4 font-body">
+          ♠&nbsp; discord music bot &nbsp;♠
+        </p>
+        <h1 class="anim-fadeup delay-2 font-display text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.05] mb-6">
+          <span class="text-ivory">I'll play any</span><br>
+          <em class="glow-cr text-cr-light not-italic">song you bet on.</em>
+        </h1>
+        <p class="anim-fadeup delay-3 text-blush/60 text-lg leading-relaxed mb-10 font-light">
+          Runa brings the thrill to your server — YouTube search, live queues, and enough style to make your whole server feel the rush. ♥
+        </p>
+        <div class="anim-fadeup delay-4 flex flex-wrap gap-4 justify-center lg:justify-start">
+          <a href="https://top.gg/bot/845455726759247915" target="_blank" class="btn-runa inline-flex items-center gap-2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.1 18.08.11 18.1.127 18.113a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+            Add Runa to Server
+          </a>
+          <a href="#features" class="btn-outline inline-flex items-center gap-2">
+            See Features &nbsp;↓
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- scroll chevron -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 chevron-bounce">
+      <a href="#ticker" aria-label="scroll down">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(212,169,41,.5)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 9l6 6 6-6"/>
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- ══════════════ TICKER ══════════════ -->
+  <div id="ticker" class="overflow-hidden py-4 border-y border-cr/15 bg-surface">
+    <div class="ticker-track text-gold/40 text-xs font-body uppercase tracking-[.25em] select-none" aria-hidden="true">
+      <span class="px-8">♠ YouTube Search</span>
+      <span class="px-8">♥ Queue System</span>
+      <span class="px-8">♦ Now Playing</span>
+      <span class="px-8">♣ Seek & Skip</span>
+      <span class="px-8">♠ Volume Control</span>
+      <span class="px-8">♥ Shuffle Mode</span>
+      <span class="px-8">♦ Playlist Support</span>
+      <span class="px-8">♣ Loop Tracks</span>
+      <span class="px-8">♠ YouTube Search</span>
+      <span class="px-8">♥ Queue System</span>
+      <span class="px-8">♦ Now Playing</span>
+      <span class="px-8">♣ Seek & Skip</span>
+      <span class="px-8">♠ Volume Control</span>
+      <span class="px-8">♥ Shuffle Mode</span>
+      <span class="px-8">♦ Playlist Support</span>
+      <span class="px-8">♣ Loop Tracks</span>
+    </div>
+  </div>
+
+  <!-- ══════════════ STATS ══════════════ -->
+  <section class="py-20 px-6 relative z-10">
+    <div class="max-w-4xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="stat-card">
+        <p class="font-display text-3xl font-bold text-gold glow-gold">2.4k+</p>
+        <p class="text-blush/50 text-xs mt-1 tracking-wide uppercase">Servers</p>
+      </div>
+      <div class="stat-card">
+        <p class="font-display text-3xl font-bold text-gold glow-gold">1M+</p>
+        <p class="text-blush/50 text-xs mt-1 tracking-wide uppercase">Songs Played</p>
+      </div>
+      <div class="stat-card">
+        <p class="font-display text-3xl font-bold text-gold glow-gold">99.9%</p>
+        <p class="text-blush/50 text-xs mt-1 tracking-wide uppercase">Uptime</p>
+      </div>
+      <div class="stat-card">
+        <p class="font-display text-3xl font-bold text-gold glow-gold">24/7</p>
+        <p class="text-blush/50 text-xs mt-1 tracking-wide uppercase">Always Ready</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ FEATURES ══════════════ -->
+  <section id="features" class="py-24 px-6 relative z-10">
+    <div class="max-w-6xl mx-auto">
+
+      <!-- section header -->
+      <div class="text-center mb-16">
+        <div class="suit-divider mb-6">♠ ♥ ♦ ♣</div>
+        <h2 class="font-display text-4xl lg:text-5xl font-black text-ivory mb-4">
+          Why bet on <em class="text-cr-light not-italic glow-cr">Runa?</em>
+        </h2>
+        <p class="text-blush/50 text-base max-w-md mx-auto leading-relaxed">
+          Every feature dealt with precision. No bluffing — just music.
+        </p>
+      </div>
+
+      <!-- feature grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
+        <!-- card 1 -->
+        <div class="feat-card rounded-2xl p-7 lg:col-span-2">
+          <div class="corner tl">♥<br>A</div>
+          <div class="corner br">♥<br>A</div>
+          <div class="w-12 h-12 rounded-xl bg-cr/15 border border-cr/25 flex items-center justify-center text-cr text-2xl mb-5">
+            ♪
+          </div>
+          <h3 class="font-display text-xl font-bold text-ivory mb-3">YouTube Search</h3>
+          <p class="text-blush/55 text-sm leading-relaxed mb-5">
+            Just type a song title or paste a link — Runa hunts it down instantly and queues it up. Your favourite tracks never miss a beat.
+          </p>
+          <div class="mt-4 rounded-xl overflow-hidden border border-white/5">
+            <img src="pic3.png" alt="command screenshot" class="w-full h-40 object-cover object-top opacity-80 hover:opacity-100 transition-opacity">
+          </div>
+        </div>
+
+        <!-- card 2 -->
+        <div class="feat-card rounded-2xl p-7 flex flex-col">
+          <div class="corner tl">♠<br>K</div>
+          <div class="corner br">♠<br>K</div>
+          <div class="w-12 h-12 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center text-gold text-2xl mb-5">
+            ♛
+          </div>
+          <h3 class="font-display text-xl font-bold text-ivory mb-3">Queue & Tracking</h3>
+          <p class="text-blush/55 text-sm leading-relaxed mb-4">
+            See what's playing, who requested it, and how much is left on the clock. Full transparency in the hand you've been dealt.
+          </p>
+          <div class="mt-auto rounded-xl overflow-hidden border border-white/5">
+            <img src="pic1.png" alt="queue screenshot" class="w-full h-32 object-cover object-top opacity-80 hover:opacity-100 transition-opacity">
+          </div>
+        </div>
+
+        <!-- card 3 -->
+        <div class="feat-card rounded-2xl p-7 flex flex-col">
+          <div class="corner tl">♦<br>Q</div>
+          <div class="corner br">♦<br>Q</div>
+          <div class="w-12 h-12 rounded-xl bg-blush/10 border border-blush/15 flex items-center justify-center text-blush text-2xl mb-5">
+            ♡
+          </div>
+          <h3 class="font-display text-xl font-bold text-ivory mb-3">Cute & Themed</h3>
+          <p class="text-blush/55 text-sm leading-relaxed">
+            Runa's responses are styled with personality — crisp embeds, clean formatting, and just enough drama to keep your server excited.
+          </p>
+          <div class="mt-auto pt-5">
+            <div class="flex flex-wrap gap-2">
+              <span class="text-xs px-3 py-1 rounded-full border border-cr/30 text-cr/80 bg-cr/5">Embed cards</span>
+              <span class="text-xs px-3 py-1 rounded-full border border-gold/30 text-gold/80 bg-gold/5">Rich format</span>
+              <span class="text-xs px-3 py-1 rounded-full border border-blush/20 text-blush/70 bg-blush/5">Styled output</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- card 4 -->
+        <div class="feat-card rounded-2xl p-7 flex flex-col lg:col-span-2">
+          <div class="corner tl">♣<br>J</div>
+          <div class="corner br">♣<br>J</div>
+          <div class="w-12 h-12 rounded-xl bg-cr/15 border border-cr/25 flex items-center justify-center text-cr text-2xl mb-5">
+            ⚡
+          </div>
+          <h3 class="font-display text-xl font-bold text-ivory mb-3">Extensive Command List</h3>
+          <p class="text-blush/55 text-sm leading-relaxed mb-5">
+            From play to pause, skip to shuffle — Runa's got a full deck. Every control you need, dealt on demand.
+          </p>
+          <div class="mt-4 rounded-xl overflow-hidden border border-white/5">
+            <img src="pic2.png" alt="commands screenshot" class="w-full h-40 object-cover object-top opacity-80 hover:opacity-100 transition-opacity">
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ COMMANDS ══════════════ -->
+  <section id="commands" class="py-24 px-6 relative z-10 bg-surface">
+    <div class="max-w-4xl mx-auto">
+
+      <div class="text-center mb-14">
+        <div class="suit-divider mb-6">♣ ♦ ♥ ♠</div>
+        <h2 class="font-display text-4xl font-black text-ivory mb-4">
+          The Full <em class="text-gold glow-gold not-italic">Deck</em>
+        </h2>
+        <p class="text-blush/45 text-sm">Every command you'll need to run the table.</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        <!-- category: playback -->
+        <div class="bg-card rounded-2xl border border-white/5 p-6">
+          <p class="text-gold/70 text-xs uppercase tracking-[.2em] mb-4 flex items-center gap-2">
+            <span>♪</span> Playback
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <span class="cmd-chip">/play</span>
+            <span class="cmd-chip">/pause</span>
+            <span class="cmd-chip">/resume</span>
+            <span class="cmd-chip">/stop</span>
+            <span class="cmd-chip">/skip</span>
+            <span class="cmd-chip">/seek</span>
+          </div>
+        </div>
+
+        <!-- category: queue -->
+        <div class="bg-card rounded-2xl border border-white/5 p-6">
+          <p class="text-gold/70 text-xs uppercase tracking-[.2em] mb-4 flex items-center gap-2">
+            <span>♠</span> Queue
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <span class="cmd-chip">/queue</span>
+            <span class="cmd-chip">/shuffle</span>
+            <span class="cmd-chip">/loop</span>
+            <span class="cmd-chip">/remove</span>
+            <span class="cmd-chip">/clear</span>
+          </div>
+        </div>
+
+        <!-- category: info -->
+        <div class="bg-card rounded-2xl border border-white/5 p-6">
+          <p class="text-gold/70 text-xs uppercase tracking-[.2em] mb-4 flex items-center gap-2">
+            <span>♥</span> Info
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <span class="cmd-chip">/nowplaying</span>
+            <span class="cmd-chip">/lyrics</span>
+            <span class="cmd-chip">/history</span>
+          </div>
+        </div>
+
+        <!-- category: settings -->
+        <div class="bg-card rounded-2xl border border-white/5 p-6">
+          <p class="text-gold/70 text-xs uppercase tracking-[.2em] mb-4 flex items-center gap-2">
+            <span>♦</span> Settings
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <span class="cmd-chip">/volume</span>
+            <span class="cmd-chip">/bass</span>
+            <span class="cmd-chip">/equalizer</span>
+            <span class="cmd-chip">/247</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ CTA BANNER ══════════════ -->
+  <section class="py-28 px-6 relative z-10 overflow-hidden">
+    <!-- bg effect -->
+    <div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(ellipse 60% 70% at 50% 50%, rgba(200,0,30,.14), transparent 70%)"></div>
+    <span class="scatter-suit" style="top:10%;left:3%;font-size:4rem;">♠</span>
+    <span class="scatter-suit" style="bottom:10%;right:4%;font-size:3rem;">♥</span>
+
+    <div class="max-w-2xl mx-auto text-center relative z-10">
+      <p class="text-gold/60 text-sm uppercase tracking-[.3em] mb-5">♥ &nbsp; ready to play? &nbsp; ♥</p>
+      <h2 class="font-display text-4xl lg:text-5xl font-black text-ivory leading-tight mb-6">
+        Place your bet.<br>
+        <em class="not-italic glow-cr text-cr-light">Let Runa deal.</em>
+      </h2>
+      <p class="text-blush/45 text-base mb-10 leading-relaxed">
+        Free to use. No house advantage. Just pure music — served with style and a hint of madness. ♠
+      </p>
+      <a href="https://top.gg/bot/845455726759247915" target="_blank" class="btn-runa inline-flex items-center gap-3 text-base">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.1 18.08.11 18.1.127 18.113a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+        Add Runa to your Server
+      </a>
+    </div>
+  </section>
+
+  <!-- ══════════════ FOOTER ══════════════ -->
+  <footer class="relative z-10 px-6 pb-10 pt-4">
+    <div class="footer-line mb-8"></div>
+    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-blush/30 text-xs">
+      <div class="flex items-center gap-3">
+        <img src="profile.png" alt="" class="w-6 h-6 rounded-full opacity-60">
+        <span class="font-display text-sm text-ivory/40">Runa</span>
+        <span class="text-gold/30">♥</span>
+        <span>Inspired by Kakegurui</span>
+      </div>
+      <div class="flex items-center gap-5">
+        <a href="https://top.gg/bot/845455726759247915" target="_blank" class="hover:text-blush/60 transition-colors">top.gg</a>
+        <span class="text-gold/20">♠</span>
+        <span>© 2025 Runa Bot</span>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
